@@ -34,22 +34,50 @@ export const updateAppointment = asyncHandler(async (req, res) => {
   res.json(appointment);
 });
 
-export const deleteAppointment = asyncHandler(async (req, res) => {
-  const appointment = await appointmentService.deleteAppointmentService(req.params.id);
+export const cancelAppointment = asyncHandler(async (req, res) => {
+  const { reason } = req.body;
+  
+  if (!reason) {
+    throw new AppError('Cancellation reason is required', 400);
+  }
+
+  const appointment = await appointmentService.updateAppointmentService(
+    req.params.id,
+    {
+      status: 'Cancelled',
+      cancellationReason: reason,
+      cancelledAt: new Date(),
+      cancelledBy: req.user.id
+    }
+  );
 
   if (!appointment) {
     throw new AppError('Appointment not found', 404);
   }
 
-  res.json({ message: 'Appointment deleted successfully' });
+  res.json(appointment);
 });
 
-export const getDoctorSchedule = asyncHandler(async (req, res) => {
-  const { startDate, endDate } = req.query;
-  const schedule = await appointmentService.getDoctorScheduleService(
-    req.user.id,
-    new Date(startDate),
-    new Date(endDate)
+export const rescheduleAppointment = asyncHandler(async (req, res) => {
+  const { dateTime } = req.body;
+  
+  if (!dateTime) {
+    throw new AppError('New appointment date and time are required', 400);
+  }
+
+  const appointment = await appointmentService.updateAppointmentService(
+    req.params.id,
+    {
+      dateTime: new Date(dateTime),
+      status: 'Rescheduled',
+      rescheduledAt: new Date(),
+      rescheduledBy: req.user.id
+    }
   );
-  res.json(schedule);
+
+  if (!appointment) {
+    throw new AppError('Appointment not found', 404);
+  }
+
+  res.json(appointment);
 });

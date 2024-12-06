@@ -4,7 +4,8 @@ import {
   createAppointment,
   getAppointments,
   updateAppointment,
-  deleteAppointment
+  cancelAppointment,
+  rescheduleAppointment
 } from '../controllers/appointments.js';
 
 const router = express.Router();
@@ -16,7 +17,9 @@ router.route('/')
   .post(createAppointment);
 
 router.route('/:id')
-  .patch(updateAppointment)
-  .delete(restrictTo('doctor'), deleteAppointment);
+  .patch(updateAppointment);
+
+router.patch('/:id/cancel', cancelAppointment);
+router.patch('/:id/reschedule', rescheduleAppointment);
 
 export default router;

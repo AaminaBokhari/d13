@@ -64,9 +64,15 @@ function AppointmentQueue() {
       header: 'Actions',
       cell: (info) => (
         <AppointmentActions
-          appointment={info.row.original}
-          onReschedule={(apt) => console.log('Reschedule:', apt)}
-          onCancel={(apt) => console.log('Cancel:', apt)}
+          appointment={{
+            ...info.row.original,
+            _id: info.row.original.id,
+            dateTime: new Date().toISOString() // Add a valid dateTime field
+          }}
+          onUpdate={(updatedAppointment) => {
+            console.log('Appointment updated:', updatedAppointment);
+            // In a real app, you would update the appointments list here
+          }}
         />
       ),
     }),
