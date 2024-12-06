@@ -9,6 +9,11 @@ import connectDB from './utils/connectDB.js';
 import initializeSocket from './config/socket.js';
 import errorHandler, { notFound } from './middleware/errorHandler.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
+import validateEnv from './config/validateEnv.js';
+
+// Load and validate environment variables
+dotenv.config();
+validateEnv();
 
 // Route imports
 import healthRoutes from './routes/health.js';
@@ -17,9 +22,6 @@ import prescriptionRoutes from './routes/prescriptions.js';
 import medicalHistoryRoutes from './routes/medicalHistory.js';
 import authRoutes from './routes/auth.js';
 import chatRoutes from './routes/chat.js';
-
-// Load environment variables
-dotenv.config();
 
 // Initialize express app
 const app = express();
