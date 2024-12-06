@@ -23,6 +23,8 @@ import medicalHistoryRoutes from './routes/medicalHistory.js';
 import authRoutes from './routes/auth.js';
 import chatRoutes from './routes/chat.js';
 import activityRoutes from './routes/activities.js';
+import documentRoutes from './routes/documents.js';
+import medicationRoutes from './routes/medications.js';
 
 // Initialize express app
 const app = express();
@@ -61,6 +63,8 @@ app.use('/api/medical-history', medicalHistoryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/activities', activityRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/medications', medicationRoutes);
 
 // Error Handling
 app.use(notFound);
@@ -80,5 +84,5 @@ process.on('unhandledRejection', (err) => {
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
   console.error(`Error: ${err.message}`);
-  process.exit(1);
+  process.exit(1));
 });

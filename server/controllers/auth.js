@@ -1,67 +1,78 @@
-import jwt from 'jsonwebtoken';
+import { 
+  signToken, 
+  registerUser, 
+  verifyUserEmail, 
+  initiatePasswordReset, 
+  resetUserPassword 
+} from '../services/authService.js';
 import User from '../models/User.js';
+import sendEmail from '../utils/email.js';
+import { catchAsync } from '../utils/catchAsync.js';
 
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d'
+export const register = catchAsync(async (req, res) => {
+  const { user, token, verificationUrl } = await registerUser(req.body);
+
+  await sendEmail({
+    email: user.email,
+    subject: 'Please verify your email',
+    message: `Click here to verify your email: ${verificationUrl}`
   });
-};
 
-export const register = async (req, res) => {
-  try {
-    const { name, email, password, role, specialization, licenseNumber } = req.body;
-
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+  res.status(201).json({
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
     }
+  });
+});
 
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role,
-      specialization,
-      licenseNumber
-    });
+export const login = catchAsync(async (req, res) => {
+  const { email, password } = req.body;
 
-    const token = signToken(user._id);
-
-    res.status(201).json({
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating user', error: error.message });
+  const user = await User.findOne({ email });
+  if (!user || !(await user.comparePassword(password))) {
+    return res.status(401).json({ message: 'Invalid email or password' });
   }
-};
 
-export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  if (!user.isVerified) {
+    return res.status(401).json({ message: 'Please verify your email first' });
+  }
 
-    const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+  const token = signToken(user._id);
+
+  res.json({
+    token,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
     }
+  });
+});
 
-    const token = signToken(user._id);
+export const forgotPassword = catchAsync(async (req, res) => {
+  const { user, resetUrl } = await initiatePasswordReset(req.body.email);
 
-    res.json({
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Error logging in', error: error.message });
-  }
-};
+  await sendEmail({
+    email: user.email,
+    subject: 'Password Reset Request',
+    message: `Forgot your password? Click here to reset: ${resetUrl}\nIf you didn't request this, please ignore.`
+  });
+
+  res.json({ message: 'Password reset token sent to email' });
+});
+
+export const resetPassword = catchAsync(async (req, res) => {
+  const user = await resetUserPassword(req.params.token, req.body.password);
+  const token = signToken(user._id);
+  res.json({ token });
+});
+
+export const verifyEmail = catchAsync(async (req, res) => {
+  await verifyUserEmail(req.params.token);
+  res.json({ message: 'Email verified successfully' });
+});
