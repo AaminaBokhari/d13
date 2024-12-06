@@ -45,7 +45,9 @@
     "morgan": "^1.10.0",
     "express-rate-limit": "^7.1.5",
     "axios": "^1.6.7",
-    "react-query": "^3.39.3"
+    "react-query": "^3.39.3",
+    "envalid": "^8.0.0",
+    "prop-types": "^15.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
