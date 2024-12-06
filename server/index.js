@@ -22,6 +22,7 @@ import prescriptionRoutes from './routes/prescriptions.js';
 import medicalHistoryRoutes from './routes/medicalHistory.js';
 import authRoutes from './routes/auth.js';
 import chatRoutes from './routes/chat.js';
+import activityRoutes from './routes/activities.js';
 
 // Initialize express app
 const app = express();
@@ -59,6 +60,7 @@ app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/medical-history', medicalHistoryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/activities', activityRoutes);
 
 // Error Handling
 app.use(notFound);
