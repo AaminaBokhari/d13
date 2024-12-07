@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ErrorBoundary from './components/ErrorBoundary';
 import Dashboard from './pages/Dashboard';
 import Appointments from './pages/Appointments';
 import Prescriptions from './pages/Prescriptions';
@@ -26,34 +25,32 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
-      <Router>
-        <div className="flex h-screen bg-gray-100">
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto p-6">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/appointments" element={<Appointments />} />
-              <Route path="/prescriptions" element={<Prescriptions />} />
-              <Route path="/medical-history" element={<MedicalHistory />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/symptom-checker" element={<SymptomChecker />} />
-            </Routes>
-          </main>
-          <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-        </div>
-      </Router>
-    </ErrorBoundary>
+    <Router>
+      <div className="flex h-screen bg-gray-100">
+        <Sidebar />
+        <main className="flex-1 overflow-y-auto p-6">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/appointments" element={<Appointments />} />
+            <Route path="/prescriptions" element={<Prescriptions />} />
+            <Route path="/medical-history" element={<MedicalHistory />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/symptom-checker" element={<SymptomChecker />} />
+          </Routes>
+        </main>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+      </div>
+    </Router>
   );
 }
 

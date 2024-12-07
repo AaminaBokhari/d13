@@ -17,25 +17,25 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
+  }
 );
 
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const errorMessage = error.response?.data?.message || 'An error occurred';
+    console.error('Response error:', error);
     
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
 
-    if (!error.response?.status || error.response?.status >= 500) {
-      toast.error('Server error. Please try again later.');
-    } else {
-      toast.error(errorMessage);
-    }
+    const errorMessage = error.response?.data?.message || 'An error occurred';
+    toast.error(errorMessage);
     
     return Promise.reject(error);
   }

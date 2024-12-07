@@ -1,78 +1,67 @@
-import { 
-  signToken, 
-  registerUser, 
-  verifyUserEmail, 
-  initiatePasswordReset, 
-  resetUserPassword 
-} from '../services/authService.js';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import sendEmail from '../utils/email.js';
-import { catchAsync } from '../utils/catchAsync.js';
 
-export const register = catchAsync(async (req, res) => {
-  const { user, token, verificationUrl } = await registerUser(req.body);
-
-  await sendEmail({
-    email: user.email,
-    subject: 'Please verify your email',
-    message: `Click here to verify your email: ${verificationUrl}`
+const signToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d'
   });
+};
 
-  res.status(201).json({
-    token,
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role
+export const register = async (req, res) => {
+  try {
+    const { name, email, password, role, specialization, licenseNumber } = req.body;
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists' });
     }
-  });
-});
 
-export const login = catchAsync(async (req, res) => {
-  const { email, password } = req.body;
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      specialization,
+      licenseNumber
+    });
 
-  const user = await User.findOne({ email });
-  if (!user || !(await user.comparePassword(password))) {
-    return res.status(401).json({ message: 'Invalid email or password' });
+    const token = signToken(user._id);
+
+    res.status(201).json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating user', error: error.message });
   }
+};
 
-  if (!user.isVerified) {
-    return res.status(401).json({ message: 'Please verify your email first' });
-  }
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  const token = signToken(user._id);
-
-  res.json({
-    token,
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role
+    const user = await User.findOne({ email });
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
-  });
-});
 
-export const forgotPassword = catchAsync(async (req, res) => {
-  const { user, resetUrl } = await initiatePasswordReset(req.body.email);
+    const token = signToken(user._id);
 
-  await sendEmail({
-    email: user.email,
-    subject: 'Password Reset Request',
-    message: `Forgot your password? Click here to reset: ${resetUrl}\nIf you didn't request this, please ignore.`
-  });
-
-  res.json({ message: 'Password reset token sent to email' });
-});
-
-export const resetPassword = catchAsync(async (req, res) => {
-  const user = await resetUserPassword(req.params.token, req.body.password);
-  const token = signToken(user._id);
-  res.json({ token });
-});
-
-export const verifyEmail = catchAsync(async (req, res) => {
-  await verifyUserEmail(req.params.token);
-  res.json({ message: 'Email verified successfully' });
-});
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error logging in', error: error.message });
+  }
+};
