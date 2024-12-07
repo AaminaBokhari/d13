@@ -4,13 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "vite",
+    "dev:server": "nodemon server/index.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "node server/index.js",
-    "dev:server": "nodemon server/index.js",
-    "start": "concurrently \"npm run dev:server\" \"npm run dev\""
+    "start": "node server/index.js"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -47,14 +47,15 @@
     "axios": "^1.6.7",
     "react-query": "^3.39.3",
     "envalid": "^8.0.0",
-    "prop-types": "^15.8.1"
+    "prop-types": "^15.8.1",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.1",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^9.9.1",
+    "@eslint/js": "^9.9.1",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.11",
