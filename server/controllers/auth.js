@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { logger } from '../utils/logger.js';
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -27,17 +28,26 @@ export const register = async (req, res) => {
 
     const token = signToken(user._id);
 
+    logger.info(`New user registered: ${email}`);
+
     res.status(201).json({
+      success: true,
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        specialization: user.specialization
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error creating user', error: error.message });
+    logger.error(`Registration error: ${error.message}`);
+    res.status(500).json({ 
+      success: false,
+      message: 'Error creating user', 
+      error: error.message 
+    });
   }
 };
 
@@ -47,21 +57,33 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ 
+        success: false,
+        message: 'Invalid email or password' 
+      });
     }
 
     const token = signToken(user._id);
 
+    logger.info(`User logged in: ${email}`);
+
     res.json({
+      success: true,
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        specialization: user.specialization
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error logging in', error: error.message });
+    logger.error(`Login error: ${error.message}`);
+    res.status(500).json({ 
+      success: false,
+      message: 'Error logging in', 
+      error: error.message 
+    });
   }
 };
