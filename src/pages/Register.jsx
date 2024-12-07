@@ -12,6 +12,7 @@ function Register() {
     specialization: '',
     licenseNumber: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,17 +23,25 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+
     try {
       const response = await api.post('/auth/register', {
         ...formData,
         role: 'doctor'
       });
       
-      localStorage.setItem('doctor_token', response.data.token);
-      toast.success('Registration successful!');
-      navigate('/');
+      if (response.data.success) {
+        localStorage.setItem('doctor_token', response.data.token);
+        toast.success('Registration successful! Redirecting to dashboard...');
+        navigate('/');
+      } else {
+        toast.error(response.data.message || 'Registration failed');
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Registration failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -125,9 +134,10 @@ function Register() {
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              disabled={isLoading}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
             >
-              Register
+              {isLoading ? 'Registering...' : 'Register'}
             </button>
           </div>
         </form>
