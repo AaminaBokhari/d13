@@ -16,7 +16,7 @@ import { logger } from './utils/logger.js';
 dotenv.config();
 validateEnv();
 
-// Route imports
+// Route imports - Only doctor panel specific routes
 import authRoutes from './routes/auth.js';
 import appointmentRoutes from './routes/appointments.js';
 import prescriptionRoutes from './routes/prescriptions.js';
@@ -28,15 +28,15 @@ import chatRoutes from './routes/chat.js';
 const app = express();
 const httpServer = createServer(app);
 
-// Connect to MongoDB
+// Connect to MongoDB with specific database
 connectDB();
 
-// Initialize Socket.IO for real-time features
+// Initialize Socket.IO for doctor-specific real-time features
 const io = initializeSocket(httpServer);
 
 // Security middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: process.env.CLIENT_URL,
   credentials: true
 }));
 app.use(express.json());
@@ -47,22 +47,22 @@ app.use(compression());
 app.use(morgan('dev'));
 app.use(apiLimiter);
 
-// Add io to request object
+// Add io to request object for real-time features
 app.use((req, res, next) => {
   req.io = io;
   next();
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/prescriptions', prescriptionRoutes);
-app.use('/api/medical-history', medicalHistoryRoutes);
-app.use('/api/patients', patientRoutes);
-app.use('/api/chat', chatRoutes);
+// Doctor panel specific API routes
+app.use('/api/doctor/auth', authRoutes);
+app.use('/api/doctor/appointments', appointmentRoutes);
+app.use('/api/doctor/prescriptions', prescriptionRoutes);
+app.use('/api/doctor/medical-history', medicalHistoryRoutes);
+app.use('/api/doctor/patients', patientRoutes);
+app.use('/api/doctor/chat', chatRoutes);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
+// Health check endpoint for doctor panel
+app.get('/api/doctor/health', (req, res) => {
   res.json({ 
     status: 'ok',
     service: 'doctor-panel',

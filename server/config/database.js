@@ -3,9 +3,11 @@ import { logger } from '../utils/logger.js';
 
 const connectDB = async () => {
   try {
+    // Use a specific database name for the doctor panel
     const conn = await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
+      dbName: 'doctor_panel' // Specific database for doctor panel
     });
     
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
