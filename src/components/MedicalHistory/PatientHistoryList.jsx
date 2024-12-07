@@ -1,6 +1,6 @@
 import React from 'react';
-import { format } from 'date-fns';
 import PropTypes from 'prop-types';
+import { format } from 'date-fns';
 import HistoryCard from './HistoryCard';
 import LoadingSpinner from '../common/LoadingSpinner';
 
@@ -12,7 +12,7 @@ function PatientHistoryList({ history, isLoading, error }) {
   if (error) {
     return (
       <div className="bg-red-50 p-4 rounded-lg">
-        <p className="text-red-600">Error loading medical history: {error}</p>
+        <p className="text-red-600">Error loading medical history: {error.message}</p>
       </div>
     );
   }
@@ -43,7 +43,7 @@ PatientHistoryList.propTypes = {
     labResults: PropTypes.arrayOf(PropTypes.shape({
       testName: PropTypes.string.isRequired,
       result: PropTypes.string.isRequired,
-      date: PropTypes.string.isRequired
+      date: PropTypes.string
     })),
     vitals: PropTypes.shape({
       bloodPressure: PropTypes.string,
@@ -52,7 +52,7 @@ PatientHistoryList.propTypes = {
     })
   })),
   isLoading: PropTypes.bool,
-  error: PropTypes.string
+  error: PropTypes.object
 };
 
 export default PatientHistoryList;
